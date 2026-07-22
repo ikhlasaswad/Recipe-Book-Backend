@@ -3,10 +3,7 @@
 -- MySQL 8+
 -- ============================================
 
-CREATE DATABASE IF NOT EXISTS matbakhy_db
-  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-USE matbakhy_db;
+USE railway;
 
 -- ============ المستخدمون ============
 -- role: admin | cook | user   (الضيف guest لا يُخزَّن، يُعامل كجلسة مؤقتة بدون توكن دائم)

@@ -59,3 +59,19 @@ exports.updateUserRole = async (req, res) => {
     res.status(500).json({ message: 'تعذر تحديث الدور', error: err.message });
   }
 };
+// (admin فقط) حذف مستخدم نهائياً — يمنع الأدمن من حذف حسابه الخاص
+exports.deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (Number(id) === req.user.id) {
+      return res.status(400).json({ message: 'لا يمكنك حذف حسابك الخاص' });
+    }
+    const [[target]] = await pool.query('SELECT id FROM users WHERE id = ?', [id]);
+    if (!target) return res.status(404).json({ message: 'المستخدم غير موجود' });
+
+    await pool.query('DELETE FROM users WHERE id = ?', [id]);
+    res.json({ message: 'تم حذف المستخدم بنجاح' });
+  } catch (err) {
+    res.status(500).json({ message: 'تعذر حذف المستخدم', error: err.message });
+  }
+};

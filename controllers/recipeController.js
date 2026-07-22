@@ -162,6 +162,22 @@ exports.deleteRecipe = async (req, res) => {
     res.status(500).json({ message: 'تعذر حذف الوصفة', error: err.message });
   }
 };
+exports.getPendingRecipes = async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT r.id, r.title, r.image_url, r.cooking_time_minutes, c.name_ar AS category_name,
+              u.full_name AS created_by_name, r.created_at
+       FROM recipes r
+       JOIN categories c ON c.id = r.category_id
+       JOIN users u ON u.id = r.created_by
+       WHERE r.status = 'pending'
+       ORDER BY r.created_at DESC`
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ message: 'تعذر جلب الوصفات المعلّقة', error: err.message });
+  }
+};
 
 // موافقة admin على وصفة أضافها طباخ (status: pending -> approved)
 exports.approveRecipe = async (req, res) => {
@@ -171,5 +187,14 @@ exports.approveRecipe = async (req, res) => {
     res.json({ message: 'تم اعتماد الوصفة' });
   } catch (err) {
     res.status(500).json({ message: 'تعذر اعتماد الوصفة', error: err.message });
+  }
+};
+exports.rejectRecipe = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query('UPDATE recipes SET status = ? WHERE id = ?', ['rejected', id]);
+    res.json({ message: 'تم رفض الوصفة' });
+  } catch (err) {
+    res.status(500).json({ message: 'تعذر رفض الوصفة', error: err.message });
   }
 };
