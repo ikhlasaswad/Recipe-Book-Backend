@@ -87,8 +87,7 @@ exports.createRecipe = async (req, res) => {
   const conn = await pool.getConnection();
   try {
     const { title, description, cooking_time_minutes, servings, category_id, ingredients, steps } = req.body;
-    const image_url = req.file ? `/uploads/recipes/${req.file.filename}` : null;
-
+const image_url = req.file ? req.file.path : null;
     await conn.beginTransaction();
     const [result] = await conn.query(
       `INSERT INTO recipes (title, description, image_url, cooking_time_minutes, servings, category_id, created_by, status)
@@ -131,8 +130,7 @@ exports.updateRecipe = async (req, res) => {
       return res.status(403).json({ message: 'لا يمكنك تعديل هذه الوصفة' });
     }
     const { title, description, cooking_time_minutes, servings, category_id } = req.body;
-    const image_url = req.file ? `/uploads/recipes/${req.file.filename}` : undefined;
-
+const image_url = req.file ? req.file.path : null;
     const fields = { title, description, cooking_time_minutes, servings, category_id };
     if (image_url) fields.image_url = image_url;
 

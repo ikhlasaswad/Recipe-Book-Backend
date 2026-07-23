@@ -17,8 +17,7 @@ exports.getMe = async (req, res) => {
 exports.updateMe = async (req, res) => {
   try {
     const { full_name, bio, theme_color } = req.body;
-    const avatar_url = req.file ? `/uploads/avatars/${req.file.filename}` : undefined;
-
+const avatar_url = req.file ? req.file.path : undefined;
     const fields = { full_name, bio, theme_color };
     if (avatar_url) fields.avatar_url = avatar_url;
 
