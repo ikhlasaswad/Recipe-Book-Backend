@@ -58,3 +58,18 @@ exports.guestLogin = async (req, res) => {
   const token = jwt.sign({ role: 'guest' }, process.env.JWT_SECRET, { expiresIn: '1d' });
   res.json({ token, user: { role: 'guest', full_name: 'ضيف' } });
 };
+exports.session = async (req, res) => {
+  try {
+    if (!req.user || req.user.role === 'guest' || !req.user.id) {
+      return res.json({ role: 'guest', full_name: 'ضيف' });
+    }
+    const [[user]] = await pool.query(
+      'SELECT id, full_name, email, role, avatar_url, bio, theme_color FROM users WHERE id = ?',
+      [req.user.id]
+    );
+    if (!user) return res.status(401).json({ message: 'الجلسة غير صالحة' });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: 'تعذر التحقق من الجلسة', error: err.message });
+  }
+};
