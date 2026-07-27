@@ -61,8 +61,10 @@ Base URL: `/api`
 ### Installation
 
 ```bash
-git clone https://github.com/ikhlasaswad/food-rec-repo.git
-cd food-rec-repo
+git clone https://github.com/ikhlasaswad/Recipe-Book-Backend
+.git
+cd Recipe-Book-Backend
+
 npm install
 ```
 
