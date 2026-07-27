@@ -30,7 +30,7 @@ A RESTful backend API for a recipe-sharing application ("Matbakhy" — Arabic fo
 ├── database/          # SQL schema / migrations
 ├── middleware/        # Auth guards, error handling, upload middleware
 ├── routes/            # API route definitions
-├── uploads/            # Local upload staging (if used)
+├── uploads/            # Local upload staging 
 ├── server.js           # App entry point
 └── package.json
 ```
