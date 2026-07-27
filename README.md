@@ -1,4 +1,4 @@
-# Matbakhy API 🍲
+# Recipe-Book-Backend API 🍲
 
 A RESTful backend API for a recipe-sharing application ("Matbakhy" — Arabic for "my kitchen"). Built with Node.js, Express, and MySQL, it supports user authentication, recipe management, categories, favorites, and ratings, with image uploads handled via Cloudinary.
 
