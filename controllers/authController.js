@@ -17,16 +17,16 @@ exports.register = async (req, res) => {
     if (!full_name || !email || !password) {
       return res.status(400).json({ message: 'الرجاء تعبئة جميع الحقول' });
     }
-    const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
-    if (existing.length > 0) {
+    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+    if (existing.rows.length > 0) {
       return res.status(409).json({ message: 'البريد الإلكتروني مستخدم بالفعل' });
     }
     const password_hash = await bcrypt.hash(password, 10);
-    const [result] = await pool.query(
-      'INSERT INTO users (full_name, email, password_hash, role) VALUES (?, ?, ?, ?)',
+    const result = await pool.query(
+      'INSERT INTO users (full_name, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id',
       [full_name, email, password_hash, 'user']
     );
-    const user = { id: result.insertId, full_name, email, role: 'user' };
+    const user = { id: result.rows[0].id, full_name, email, role: 'user' };
     const token = signToken(user);
     res.status(201).json({ token, user });
   } catch (err) {
@@ -38,7 +38,7 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    const { rows } = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (rows.length === 0) return res.status(401).json({ message: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
 
     const user = rows[0];
@@ -58,15 +58,17 @@ exports.guestLogin = async (req, res) => {
   const token = jwt.sign({ role: 'guest' }, process.env.JWT_SECRET, { expiresIn: '1d' });
   res.json({ token, user: { role: 'guest', full_name: 'ضيف' } });
 };
+
 exports.session = async (req, res) => {
   try {
     if (!req.user || req.user.role === 'guest' || !req.user.id) {
       return res.json({ role: 'guest', full_name: 'ضيف' });
     }
-    const [[user]] = await pool.query(
-      'SELECT id, full_name, email, role, avatar_url, bio, theme_color FROM users WHERE id = ?',
+    const { rows } = await pool.query(
+      'SELECT id, full_name, email, role, avatar_url, bio, theme_color FROM users WHERE id = $1',
       [req.user.id]
     );
+    const user = rows[0];
     if (!user) return res.status(401).json({ message: 'الجلسة غير صالحة' });
     res.json(user);
   } catch (err) {

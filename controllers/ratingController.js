@@ -9,15 +9,15 @@ exports.rateRecipe = async (req, res) => {
       return res.status(400).json({ message: 'التقييم يجب أن يكون بين 1 و 5 نجوم' });
     }
     await pool.query(
-      `INSERT INTO ratings (recipe_id, user_id, stars) VALUES (?, ?, ?)
-       ON DUPLICATE KEY UPDATE stars = VALUES(stars)`,
+      `INSERT INTO ratings (recipe_id, user_id, stars) VALUES ($1, $2, $3)
+       ON CONFLICT (recipe_id, user_id) DO UPDATE SET stars = EXCLUDED.stars`,
       [recipeId, req.user.id, stars]
     );
-    const [[avg]] = await pool.query(
-      'SELECT COALESCE(AVG(stars),0) AS avg_rating, COUNT(*) AS ratings_count FROM ratings WHERE recipe_id = ?',
+    const { rows } = await pool.query(
+      'SELECT COALESCE(AVG(stars), 0) AS avg_rating, COUNT(*) AS ratings_count FROM ratings WHERE recipe_id = $1',
       [recipeId]
     );
-    res.json({ message: 'تم حفظ تقييمك', ...avg });
+    res.json({ message: 'تم حفظ تقييمك', ...rows[0] });
   } catch (err) {
     res.status(500).json({ message: 'تعذر حفظ التقييم', error: err.message });
   }
