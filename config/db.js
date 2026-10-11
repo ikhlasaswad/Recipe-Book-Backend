@@ -1,6 +1,6 @@
 const { Pool, types } = require('pg');
 require('dotenv').config();
-
+console.log('DATABASE_URL موجود؟', !!process.env.DATABASE_URL);
 // PostgreSQL بيرجّع COUNT و AVG كنصوص — نحوّلهم لأرقام عشان تطبيق Flutter يقرأهم صح
 types.setTypeParser(20, (v) => parseInt(v, 10));   // bigint (COUNT)
 types.setTypeParser(1700, (v) => parseFloat(v));    // numeric (AVG)
